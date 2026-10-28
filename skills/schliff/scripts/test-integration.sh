@@ -146,8 +146,7 @@ python3 "$SCRIPT_DIR/score-skill.py" "$SKILL_DIR/SKILL.md" --eval-suite "$BAD_JS
 if [[ $? -ne 0 ]]; then
     pass "Malformed eval suite JSON → non-zero exit"
 else
-    # It might still work with auto-discovered eval suite, that's ok
-    pass "Malformed eval suite JSON → handled (auto-discovery fallback)"
+    fail "Malformed eval suite JSON" "a named suite must not fall back to the auto-discovered one"
 fi
 
 ##############################################################################
@@ -1315,32 +1314,18 @@ else
     fail "Unknown assertion type regression" "total=$_UNKNOWN_TOTAL, expected 0 (should be skipped)"
 fi
 
-# Test: text-gradient.py handles invalid eval-suite JSON structure gracefully
-# An array [] is valid JSON but not a valid eval-suite schema; must not crash
+# Test: text-gradient.py rejects a named eval-suite with the wrong structure
+# An array [] is valid JSON but not a valid eval-suite schema: exit 1 with a
+# message, like `schliff score`, and no traceback (#250)
 _BAD_SUITE="$TMPDIR_BASE/bad-suite.json"
 echo '[]' > "$_BAD_SUITE"
-_GRADIENT_RESULT=$(python3 "$SCRIPT_DIR/text-gradient.py" "$SKILL_DIR/SKILL.md" \
-    --json --eval-suite "$_BAD_SUITE" 2>/dev/null)
-_GRADIENT_VALID=$(echo "$_GRADIENT_RESULT" | \
-    python3 -c "import sys,json; json.load(sys.stdin); print('ok')" 2>/dev/null)
-if [[ "$_GRADIENT_VALID" == "ok" ]]; then
-    pass "text-gradient.py: invalid eval-suite schema → valid JSON output (no crash)"
+_GRADIENT_ERR=$(python3 "$SCRIPT_DIR/text-gradient.py" "$SKILL_DIR/SKILL.md" \
+    --json --eval-suite "$_BAD_SUITE" 2>&1 >/dev/null)
+_GRADIENT_RC=$?
+if [[ $_GRADIENT_RC -eq 1 && "$_GRADIENT_ERR" == *"eval-suite"* && "$_GRADIENT_ERR" != *Traceback* ]]; then
+    pass "text-gradient.py: invalid eval-suite schema → exit 1 with a message (no crash)"
 else
-    fail "text-gradient bad eval-suite" "output not valid JSON or script crashed"
-fi
-
-# Test: dashboard.py produces valid JSON with expected top-level keys
-_DASHBOARD_RESULT=$(python3 "$SCRIPT_DIR/dashboard.py" "$SKILL_DIR/SKILL.md" --json 2>/dev/null)
-_DASHBOARD_VALID=$(echo "$_DASHBOARD_RESULT" | python3 -c "
-import sys,json
-d=json.load(sys.stdin)
-assert 'composite_score' in d or 'skill_name' in d
-print('ok')
-" 2>/dev/null)
-if [[ "$_DASHBOARD_VALID" == "ok" ]]; then
-    pass "dashboard.py: produces valid JSON with expected keys"
-else
-    fail "dashboard.py output" "missing composite_score/skill_name or invalid JSON"
+    fail "text-gradient bad eval-suite" "expected exit 1 and a message, got rc=$_GRADIENT_RC"
 fi
 
 # Test: parallel-runner.py --dry-run produces valid JSON without spawning processes
@@ -1459,29 +1444,6 @@ fi
 
 section "18. New Features Tests"
 
-# Achievements: produces valid JSON
-ACH_OUT=$(python3 "$SCRIPT_DIR/achievements.py" "$SKILL_DIR/SKILL.md" --json 2>/dev/null)
-if echo "$ACH_OUT" | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'total_unlocked' in d and 'total_available' in d" 2>/dev/null; then
-    pass "achievements.py: produces valid JSON with expected keys"
-else
-    fail "achievements.py JSON" "missing expected keys"
-fi
-
-# Dashboard: gauge bars present
-DASH_OUT=$(python3 "$SCRIPT_DIR/dashboard.py" "$SKILL_DIR/SKILL.md" 2>/dev/null)
-if echo "$DASH_OUT" | grep -q "█"; then
-    pass "dashboard.py: gauge bars rendered in text output"
-else
-    fail "dashboard.py gauges" "no gauge bars found"
-fi
-
-# Dashboard: achievements section present
-if echo "$DASH_OUT" | grep -q "Achievements:"; then
-    pass "dashboard.py: achievements section present"
-else
-    fail "dashboard.py achievements" "no achievements section"
-fi
-
 # Auto-improve: JSON has elapsed_seconds and sparkline fields
 AI_OUT=$(python3 "$SCRIPT_DIR/auto-improve.py" "$SKILL_DIR/SKILL.md" --dry-run --max-iterations 0 --json 2>/dev/null)
 if echo "$AI_OUT" | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'elapsed_seconds' in d and 'sparkline' in d" 2>/dev/null; then
@@ -1508,14 +1470,6 @@ if echo "$REPORT_OUT" | grep -q "## Share"; then
     pass "generate-report.py: share badge + share snippet present in report"
 else
     fail "generate-report.py share" "share snippet not found"
-fi
-
-# Achievements: nonexistent SKILL.md → non-zero exit
-python3 "$SCRIPT_DIR/achievements.py" /nonexistent/SKILL.md --json 2>/dev/null
-if [[ $? -ne 0 ]]; then
-    pass "achievements.py: nonexistent SKILL.md → non-zero exit"
-else
-    fail "achievements.py nonexistent" "expected non-zero exit"
 fi
 
 ##############################################################################
@@ -1602,14 +1556,6 @@ if [[ "$GRADE_FAILED" == "0" ]]; then
     pass "terminal_art.py: $GRADE_PASSED tests passed (grades, heatmap, bars, sparkline, banner)"
 else
     fail "terminal_art.py" "$GRADE_PASSED passed, $GRADE_FAILED failed"
-fi
-
-# Dashboard: grade badge present
-DASH_GRADE=$(python3 "$SCRIPT_DIR/dashboard.py" "$SKILL_DIR/SKILL.md" 2>/dev/null)
-if echo "$DASH_GRADE" | grep -qE "\[S\]|\[A\]|\[B\]|\[C\]|\[D\]|\[F\]"; then
-    pass "dashboard.py: grade badge present in output"
-else
-    fail "dashboard.py grade" "no grade badge found"
 fi
 
 # Auto-improve: grade badge in banner

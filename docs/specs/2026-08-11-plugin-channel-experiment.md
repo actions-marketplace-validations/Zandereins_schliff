@@ -3,6 +3,10 @@
 **Status:** pre-registered 2026-08-11 — no *outcome* measurement below has been taken yet. The
 baseline and distributor tables were measured that day; every threshold they feed is fixed before
 the intervention, and no gate has been evaluated.
+**Gate 1 verdict** *(added 2026-10-21; the Status line above describes 2026-08-11)*:
+`RED-DISTRIBUTION`, Gate 2 `NOT-REACHED`. 1 in-scope channel (submission PR closed unmerged on day 4,
+after the maintainer registered schliff through an integration PR) plus 1 out-of-scope channel
+(no submission), read with the N = 2 caveat. See [Amendments](#amendments), 2026-10-21.
 **Branch:** `feat/plugin-channel-experiment`
 **Written:** 2026-08-11, before Task 3 (README) or any submission
 
@@ -57,8 +61,8 @@ The clock is not "when Franz decides to start" — it is an event with a public 
 
 | Field | Value |
 | --- | --- |
-| D0 (first submission PR opened, UTC) | *not yet submitted — record here when it happens* |
-| First submission PR URL | *not yet submitted* |
+| D0 (first submission PR opened, UTC) | **2026-09-29** (`createdAt` `2026-09-29T18:31:59Z`) |
+| First submission PR URL | <https://github.com/jeremylongshore/tons-of-skills-marketplace/pull/1588> (submission issue #1587) |
 | Second submission PR URL (if any) | *not yet submitted* |
 
 **Precondition on opening it at all** *(amended 2026-08-20 — see [Amendments](#amendments))*: no
@@ -423,6 +427,7 @@ against the same artifacts, on the stated dates:
 
 - Gate 1: `gh pr view <submission-PR-URL> --json createdAt,mergedAt,state` against each of the two
   qualified repos, checking `mergedAt` against 23:59 UTC on D0+21 as fixed in *The clock* above.
+  The landing note of the 2026-09-29 amendment is written beside this verdict and never changes it.
   No other repo counts toward N, regardless of how promising it looks once visited — the qualified
   list is fixed by `distributors.md` and is not expanded after Gate 1 opens. The verdict names the
   per-repo outcome and the in-scope/out-of-scope split, never a bare fraction of 2.
@@ -864,3 +869,117 @@ the confirmatory scalar did not move at all.
 *Unchanged:* every threshold and date. Step 2 of #198 (release 8.12.0, 2026-09-14) did not
 happen on its date; that is an operational miss recorded in #198, not an amendment to this
 document.
+
+### 2026-09-29 — landings are noted beside the verdict, and Gate 1 is not changed
+
+*Why:* Gate 1 reads `mergedAt` of the submission PR. In the one in-scope channel, neither of the
+two observed submitter PRs was merged. Its `sources.yaml` history from 2026-08-11 to 2026-09-28 shows two new
+outside entries. Both landed through the maintainer's own PR, and the submitter's PR was closed
+unmerged. Other routes into the catalog were not searched.
+
+| Source | Submission PR opened | Landing PR, `mergedAt` | Day, from that PR | Earlier submission |
+| --- | --- | --- | --- | --- |
+| skillcrossroads | #1125, 2026-07-24 | #1460, `2026-09-09T00:39:38Z` | 47 | PR #1080, 2026-07-17 |
+| HOL Guard | #1314, 2026-08-24 | #1476, `2026-09-22T23:19:03Z` | 29 | issue #1193, 2026-08-15 |
+
+Days are whole UTC days, with the opening day of the named submission PR as day 0. Counted from
+the earlier submission, skillcrossroads took 54 days and HOL Guard 38. #1125 was closed after
+its landing PR merged. #1314 was closed on its day 21, while #1476 was open and not yet merged.
+
+*The rule:* Gate 1, A0, Gate 2 and every pre-registered date and threshold are unchanged. When
+the Gate 1 verdict is written, and once more at 23:59 UTC on D0+60, a note is added for each
+qualified repo. The note records whether schliff is in that repo's catalog on its default branch
+(`sources.yaml`, `.claude-plugin/marketplace*.json`), and whether an open PR there would add it.
+Each item names its URL and timestamp: `mergedAt` for a merged PR, `createdAt` for an open one,
+and otherwise the commit's committer date in UTC. The note never changes a verdict or its
+label, including E-4's censored label. The collector keeps running at least until D0+60, so a
+landing's traffic is on record, though it is not read as Gate 2. It exists so that a
+maintainer integration, landed or pending, is not reported as a rejection. A widening that
+counted integrations as GREEN was drafted and dropped: every precise version of it failed
+review on cases this channel really produces.
+
+*Expectation:* 0 of the 2 observed submitter PRs merged, and both landings took longer than
+21 days. A `RED-DISTRIBUTION` is the expected outcome. That is not a reason to withhold the submission. Submitting remains the pre-registered
+action, and `ABANDONED-UNSUBMITTED` is reserved for not submitting.
+
+*Rename:* `jeremylongshore/claude-code-plugins-plus-skills`, the qualified repo in
+`distributors.md`, is now `jeremylongshore/tons-of-skills-marketplace`. Both names resolve to
+repository id `1073337396`, so it remains the qualified repo, and N is unchanged. Git and
+`gh pr view` follow the old name. **GitHub search does not:** on 2026-09-29 a search on the old
+name returned an empty list with exit 0 from `gh pr list --search`, and HTTP 422 from the search
+API. Every reading uses the new name.
+
+*Planning dates:* D0 did not happen on its planned date, 2026-09-18. That date, and the dates
+derived from it (*D0 stays 2026-09-18*, *A0 ≈ 09-19*, and the two dated rows of the table under
+"Dates after 2026-09-30"), were planning values. D0 is an event, set by *The clock*. The fixed
+dates named in the Amendments preamble are unaffected, including the abandonment deadline of
+23:59 UTC on 2026-09-30.
+
+### 2026-10-21 — Gate 1 verdict: RED-DISTRIBUTION, 1 in-scope channel plus 1 out-of-scope channel
+
+*Verdict:* **`RED-DISTRIBUTION`**, reported as 1 in-scope channel (submission PR closed unmerged,
+day 4) plus 1 out-of-scope channel (no submission). Gate 2: **`NOT-REACHED`**. A0 does not exist, so Gate 2 is
+never opened or read and the demand question stays untested by this branch, as named in advance
+in the 2026-08-25 amendment. The mechanical reading is the
+[#198 comment](https://github.com/Zandereins/schliff/issues/198#issuecomment-6305480213) posted by `gate1-verdict.yml`
+at 2026-10-21T01:10:26Z (run `39525744495`), against the deadline 23:59 UTC on D0+21 =
+2026-10-20 (the workflow's cutoff: 2026-10-20T23:59:59Z). That workflow reads the submission
+PR's `merged_at` over the REST API. The pre-registered command, run from the owner's account at
+2026-10-21T09:36:21Z, returns the same: `gh pr view <#1588 URL> --json createdAt,mergedAt,state`
+gives `"mergedAt":null,"state":"CLOSED"`.
+
+*Per repo — 1 in-scope channel plus 1 out-of-scope channel:*
+
+| Channel | Submission | Outcome at the deadline |
+| --- | --- | --- |
+| In scope: `jeremylongshore/tons-of-skills-marketplace` (formerly `claude-code-plugins-plus-skills`, id `1073337396`) | [#1588](https://github.com/jeremylongshore/tons-of-skills-marketplace/pull/1588), `createdAt` 2026-09-29T18:31:59Z | closed unmerged by the maintainer at 2026-10-03T20:40:05Z, day 4; `mergedAt` null |
+| Out of scope: `Piebald-AI/claude-code-lsps` (id `1089913897`) | none opened | no submission, so nothing to read |
+
+PR #1588 was not declined. The maintainer wrote that the source "checks out" and registered it
+through a maintainer integration PR
+[#1601](https://github.com/jeremylongshore/tons-of-skills-marketplace/pull/1601) (`mergedAt`
+2026-10-03T20:39:49Z), which landed on `main` as commit `7a89a264e` with the schliff owner
+(`Zandereins`) as author. The maintainer then closed #1588 "in favor of that commit" and closed
+submission issue #1587 as completed with the comment "Accepted." This is
+the maintainer-integration pattern the 2026-09-29 amendment documents. Under the pre-registered
+measurement (the submission PR's `mergedAt`, *How it will be judged, and by whom*) it is not a
+merge of the submission PR, so the label is `RED-DISTRIBUTION`. #1588 was not
+open at the deadline, so E-4's censored label does not apply.
+
+*What N = 2 lets this verdict say:* the one in-scope channel did not merge the submission PR
+inside the window, and no submission was made to the out-of-scope channel. A non-merge there
+would have been uninformative by construction, and no submission is uninformative too. Read
+against E-4's base rate, the outcome is ordinary. It supports neither "plugin marketplaces won't
+distribute schliff" nor "no viable distribution channel exists". The landing note below shows that the one
+in-scope gatekeeper registered schliff in `sources.yaml` and `sources.lock.json` on day 4 (the
+maintainer's word on #1587: "Accepted."); it is not in `.claude-plugin/marketplace.json` or `.claude-plugin/marketplace.extended.json`. The label
+does not change because of that.
+
+*Landing note* (2026-09-29 rule), read 2026-10-21 between 08:36:40Z and 08:36:46Z:
+
+- `tons-of-skills-marketplace`, default branch `main` at
+  [`49811a25`](https://github.com/jeremylongshore/tons-of-skills-marketplace/tree/49811a252469a93bb74afb8f6b005edf305598f3) (committer date
+  2026-10-20T10:36:31Z):
+  - `sources.yaml` and `sources.lock.json`: schliff **is** registered. Added by commit
+    [`7a89a264e`](https://github.com/jeremylongshore/tons-of-skills-marketplace/commit/7a89a264e095b228d686f249984b49f6a039fcfd), committer date 2026-10-03T20:39:48Z, via [#1601](https://github.com/jeremylongshore/tons-of-skills-marketplace/pull/1601) (`mergedAt` 2026-10-03T20:39:49Z).
+  - `.claude-plugin/marketplace.json` and `.claude-plugin/marketplace.extended.json`: schliff is
+    **not** listed.
+  - Open PRs that would add it: none. All 13 open PRs were checked by diff content: no diff
+    adds schliff to `sources.yaml`, `sources.lock.json` or a `marketplace*.json`. [#1595](https://github.com/jeremylongshore/tons-of-skills-marketplace/pull/1595)
+    (`createdAt` 2026-10-01T06:29:37Z) and [#1599](https://github.com/jeremylongshore/tons-of-skills-marketplace/pull/1599) (`createdAt` 2026-10-03T19:49:15Z) mention schliff only in unchanged context lines of `scripts/scan-allowlist.txt`.
+  - Context, not part of the note's rule: the maintainer said the next weekly sync would open
+    the mirror PR that brings schliff into the listing. The three scheduled `Sync External
+    Plugins` runs since then concluded `failure`: 2026-10-05 (`37272013129`), 2026-10-12
+    (`38212102537`) and 2026-10-19 (`39208955560`). Every scheduled run since 2026-07-13 concluded `failure` (the last scheduled `success` was
+    2026-07-06), so the failures predate the registration. Why was not investigated.
+- `Piebald-AI/claude-code-lsps`, default branch `main` at
+  [`92afe665`](https://github.com/Piebald-AI/claude-code-lsps/tree/92afe66527c948082c1a751e484f6eaf20815b36) (committer date
+  2026-07-25T22:46:43Z): schliff is not in `.claude-plugin/marketplace.json`, and the repo has no `sources.yaml`. It has no
+  open PRs.
+
+*Next dated obligation:* the second landing note, at 23:59 UTC on D0+60 = **2026-11-28**. The
+collector already runs at least until then under the 2026-09-29 amendment. New here: issue #198
+stays open until that note and is closed with it, because it is where a collector outage is
+recorded. Under the 2026-08-25 commitment alone, #198 could have closed at Gate 1's resolution.
+
+*Unchanged:* Gate 1, Gate 2, every pre-registered date and threshold, and the qualified list.

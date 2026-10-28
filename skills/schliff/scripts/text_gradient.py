@@ -1074,7 +1074,7 @@ def generate_patches(skill_path: str, gradients: list[dict]) -> list[dict]:
                 "gradient_id": f"efficiency:{g['issue']}",
                 "dimension": "efficiency",
                 "issue": g["issue"],
-                "delta": 1.5,
+                "delta": g["delta"],
                 "confidence": "high",
             })
         elif g["issue"].startswith("filler_phrases"):
@@ -1085,7 +1085,7 @@ def generate_patches(skill_path: str, gradients: list[dict]) -> list[dict]:
                 "gradient_id": f"efficiency:{g['issue']}",
                 "dimension": "efficiency",
                 "issue": g["issue"],
-                "delta": 1.0,
+                "delta": g["delta"],
                 "confidence": "high",
             })
 
@@ -1247,23 +1247,10 @@ def main():
     )
     args = parser.parse_args()
 
-    eval_suite = None
-    if args.eval_suite and Path(args.eval_suite).exists():
-        try:
-            eval_suite = json.loads(Path(args.eval_suite).read_text())
-        except (json.JSONDecodeError, OSError) as e:
-            print(f"Error: could not read eval-suite '{args.eval_suite}': {e}", file=sys.stderr)
-            sys.exit(1)
-    else:
-        # Auto-discover eval-suite.json
-        skill_dir = Path(args.skill_path).parent
-        auto_path = skill_dir / "eval-suite.json"
-        if auto_path.exists():
-            try:
-                eval_suite = json.loads(auto_path.read_text())
-            except (json.JSONDecodeError, OSError) as e:
-                print(f"Error: could not read eval-suite '{auto_path}': {e}", file=sys.stderr)
-                sys.exit(1)
+    # The CLI owns how a named suite is read: a missing or unusable one is an
+    # error, never silently replaced by the auto-discovered sibling (#250).
+    from cli import _load_eval_suite_from_args
+    eval_suite = _load_eval_suite_from_args(args)
 
     # Validate eval-suite structure before processing
     if eval_suite is not None:
